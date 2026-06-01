@@ -22,7 +22,7 @@ const typeDefs = gql`
     type Mutation {
         createProduct(name: String!, description: String, price: Float!, stock: Int!, category: String, imageUrl: String): Product
         updateProduct(id: ID!, name: String, description: String, price: Float, stock: Int, category: String, imageUrl: String): Product
-        deleteProduct(id: ID!): Boolean
+        deleteProduct(id: ID!): String!
     }
 `;
 
@@ -43,6 +43,7 @@ const resolvers = {
         deleteProduct: async (_, { id }) => {
             await Product.findByIdAndDelete(id);
             return "Produto deletado com sucesso!";
+            //return true;
         }
     }
 };

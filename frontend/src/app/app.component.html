@@ -27,13 +27,13 @@
 
            <h3>Catálogo de Produtos</h3>
           <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-            <div *ngFor="let prod of products" style="border: 1px solid #ddd; padding: 15px; width: 200px; border-radius: 5px;">
-              <img [src]="prod.imageUrl || 'https://via.placeholder.com/150'" alt="Imagem do produto" style="width: 100%; height: auto; max-height: 150px; object-fit: cover;">
-              <h4>{{ prod.name }}</h4>
-              <p>{{ prod.description }}</p>
-              <p><strong>Preço:</strong> R$ {{ prod.price }}</p>
-              <p><strong>Estoque:</strong> {{ prod.stock }} unid.</p>
-              <button (click)="deleteProduct(prod.id)" style="background-color: red; color: white; border: none; padding: 5px 10px; cursor: pointer;">Excluir</button>
+            <div *ngFor="let product of products" style="border: 1px solid #ddd; padding: 15px; width: 200px; border-radius: 5px;">
+              <img [src]="product.imageUrl || 'https://via.placeholder.com/150'" alt="Imagem do produto" style="width: 100%; height: auto; max-height: 150px; object-fit: cover;">
+              <h4>{{ product.name }}</h4>
+              <p>{{ product.description }}</p>
+              <p><strong>Preço:</strong> R$ {{ product.price }}</p>
+              <p><strong>Estoque:</strong> {{ product.stock }} unid.</p>
+              <button (click)="deleteProduct(product.id)" style="background-color: red; color: white; border: none; padding: 5px 10px; cursor: pointer;">Excluir</button>
             </div>
           </div>
     </div>

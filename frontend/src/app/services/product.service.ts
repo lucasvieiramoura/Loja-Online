@@ -45,34 +45,99 @@ export class ProductService {
   getProducts(): Observable<any[]> {
     return this.apollo
       .watchQuery<any>({
-        query: GET_PRODUCTS,
+        query: gql`
+          query GetProducts {
+            getProducts {
+            id
+            name
+            description
+            price
+            category
+            stock
+            imageUrl
+          }
+        }
+        `,
         fetchPolicy: 'network-only', // Garante que sempre busque do servidor, não do cache
       })
-      .valueChanges.pipe(map((result) => result?.data?.getProducts || [] )); // O operador '?' garante que se data fro undefined, não vai quebrar o código
+      .valueChanges.pipe(map((result) => 
+      {
+          return result?.data?.getProducts || [];
+       
+      }
+      )); // result?.data?.getProducts || [] )); // O operador '?' garante que se data fro undefined, não vai quebrar o código
   }
 
   // Criar novo produto
   createProduct(product: any): Observable<any> {
     return this.apollo.mutate({
-      mutation: CREATE_PRODUCT,
+      mutation: gql`
+        mutation CreateProduct(
+          $name: String!,
+          $description: String,
+          $price: Float!,
+          $stock: Int!,
+          $imageUrl: String,
+          $category: String          
+        ) {
+          createProduct(
+           name: $name
+            description: $description
+            price: $price
+            stock: $stock
+            imageUrl: $imageUrl
+            category: $category
+            ) {
+           id 
+           name
+          }
+        }
+      `,
       variables: {
-        name: product.name,
-        description: product.description || '',
-        price: parseFloat(product.price), // Garante que vai como Float númericoq
-        stock: parseInt(product.stock, 10) || 0, // Garante que vai como Int númerico
+          name: product.name,
+          description: product.description || '',
+          price: parseFloat(product.price), // Garante que vai como Float númericoq
+          stock: parseInt(product.stock, 10) || 0, // Garante que vai como Int númerico
         imageUrl: product.imageUrl || '',
         category: product.category || '',
       },
-      refetchQueries: [{ query: GET_PRODUCTS }], // Atualiza a lista automaticamente após a criação
+      refetchQueries: [{ query: gql`
+        query GetProducts {
+          getProducts {
+            id
+            name
+            description
+            price
+            category
+            stock
+            imageUrl
+          }
+        }
+      `}  
+      ]
     });
   }
   
   // Deletar produto
   deleteProduct(id: string): Observable<any> {
     return this.apollo.mutate({
-      mutation: DELETE_PRODUCT,
+      mutation: gql`
+        mutation DeleteProduct($id: ID!) {
+          deleteProduct(id: $id) 
+        }
+      `,
       variables: { id },
-      refetchQueries: [{ query: GET_PRODUCTS }], // Atualiza a lista automaticamente após a exclusão
+      update: (cache) => { 
+        cache.modify({
+          fields: {
+            getProducts(existingProducts = [], { readField }) {
+              return existingProducts.filter(
+                (productRef: any) => id !== readField('id', productRef)
+              );
+            }
+          }
+        });
+      }
     });
   }
 }

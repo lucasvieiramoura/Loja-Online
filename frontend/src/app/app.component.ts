@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID,ChangeDetectorRef } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from './services/product.service';
+import { nextTick } from 'process';
 
 @Component({
   selector: 'app-root',
@@ -18,32 +19,46 @@ export class AppComponent implements OnInit {
   // Injeta o ID da plataforma atual (Servidor ou Navegador)
   private platformId = inject(PLATFORM_ID);
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     // Só dispara a busca se estiver rodando no navegador do usuário
-    if (isPlatformBrowser(this.platformId)) {
+   // if (isPlatformBrowser(this.platformId)) {
       this.loadProducts();
-    }
+   // }
   }
 
-  loadProducts() {
-    this.productService.getProducts().subscribe((data) => {
-      this.products = data;
-    });
-  }
+loadProducts() {
+  this.productService.getProducts().subscribe({ // Linha 31
+    next: (data) => { 
+      this.products = data; 
+      this.cdr.markForCheck(); // Garante que a interface seja atualizada com os novos dados
+    },
+    error: (err) => { console.error(err); }
+  });
+}
 
   addProduct() {
     if(!this.newProduct.name || !this.newProduct.price) return; // Validação simples
 
     this.productService.createProduct(this.newProduct).subscribe(() => {
+      this.loadProducts(); // Recarrega a lista após adicionar
       //Limpa o formulário após sucesso
       this.newProduct = { name: '', description: '', price: 0, category: '', stock: 0, imageUrl: '' };
+      this.cdr.detectChanges(); // Força a atualização da interface após limpar o formulário
     });
   }
 
   deleteProduct(id: string) {
-    this.productService.deleteProduct(id).subscribe();
-  }
+    this.productService.deleteProduct(id).subscribe({
+      next: (response) => {
+        console.log('Produto excluído:', response);
+        this.cdr.detectChanges(); // Atualiza a interface após a exclusão
+      },
+      error: (err) => {
+        console.error('Erro ao excluir produto:', err);
+      }
+    });
+  } 
 }
 
