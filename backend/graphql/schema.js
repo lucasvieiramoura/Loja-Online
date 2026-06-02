@@ -14,15 +14,33 @@ const typeDefs = gql`
         createdAt: String
         updatedAt: String
     }
+        
+    type User {
+        id: ID!
+        name: String!
+        email: String!
+        role: String! ## ex: "admin", "customer"
+        createdAt: String
+    }
+
+    type AuthPayload {
+        token: String!
+        user: User!
+    }
+
         type Query {
         getProducts: [Product]
         getProduct(id: ID!): Product
+        me: User!
     }
 
     type Mutation {
         createProduct(name: String!, description: String, price: Float!, stock: Int!, category: String, imageUrl: String): Product
         updateProduct(id: ID!, name: String, description: String, price: Float, stock: Int, category: String, imageUrl: String): Product
         deleteProduct(id: ID!): String!
+
+        register(name: String!, email: String!, password: String!): AuthPayload!
+        login(email: String!, password: String!): AuthPayload!
     }
 `;
 
