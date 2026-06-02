@@ -4,17 +4,13 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const { typeDefs, resolvers } = require('./graphql/schema');
 
+
 async function startServer() {
     const app = express();
     app.use(cors());
 
     // Conexão Mongo DB 
-    //MONGO_URI=mongodb://localhost:27017/todolist
-    /*
-      await mongoose.connect(process.env.MONGO_URI);
-        console.log('MongoDB coneteado com sucesso!');
-    */
-    const monogoURI = 'mongodb://localhost:27017/lojaOnline';
+    const monogoURI = process.env.MONGO_URI;
     await mongoose.connect(monogoURI);//, { useNewUrlParser: true, useUnifiedTopology: true });
     console.log('MongoDB conectado com sucesso!');
 

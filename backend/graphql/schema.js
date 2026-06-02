@@ -1,5 +1,9 @@
 const { gql } = require('apollo-server-express');
 const Product = require('../models/Product');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // 1. Definição dos Tipos
 const typeDefs = gql`
@@ -65,5 +69,55 @@ const resolvers = {
         }
     }
 };
+
+const authResolvers ={
+    Mutation: {
+        register: async (_, { name, email, password }, {models}) => {
+            // 1. Verificar se o e-mail já exisite no banco
+            const existingUser = await models.User.findOne({ email });
+            if(existingUser) {
+                throw new Error('E-mail já cadastrado!');
+            }
+
+            // 2. Criptografar a senha antes de salvar
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            // 3. Salvar no banco de dados 
+            const newUser = await models.User.create(
+                { 
+                    name, 
+                    email, 
+                    password: hashedPassword, 
+                    role: 'customer' // Padrão para novos usuários cadastrados
+                }
+
+            );
+
+            // 4. Gerar token JWT
+            const token = jwt.sign({ userId: newUser.id, role: newUser.role }, JWT_SECRET, { expiresIn: '24h' });
+            return { token, user: newUser };
+        },
+
+        login: async (_, { email, password }, { models }) => {
+            // 1. Busca o usuário
+            const user = await models.User.findOne({ email });
+            if(!user) {
+                throw new Error('E-mail ou senha inválidos!');
+            }
+
+            //2. Validar senha criptografada
+            const isValid = await bcrypt.compare(password, user.password);
+            if(!isValid) {
+                throw new Error('E-mail ou senha inválidos!');
+            }
+
+            //3. Gerar token JWT
+            const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
+            return { token, user };
+        }
+    }
+};
+
+
 
 module.exports = { typeDefs, resolvers };
