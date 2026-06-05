@@ -22,7 +22,7 @@ export class AuthService {
             user {
               id
               name
-              email
+              role
             }
           }
         }
@@ -30,6 +30,27 @@ export class AuthService {
       variables: { name, email, password },
     }).pipe(
       tap( result => { this.saveToken(result.data?.register?.token); } )
+    );
+  }
+
+  //2.Mutation de Login
+  login (email: string, password: string): Observable<any> {
+    return this.apollo.mutate<any>({
+      mutation: gql`
+        mutation Login($email: String!, $password: String!) {
+          login(email: $email, password: $password) {
+            token
+            user {
+              id
+              name 
+              role
+            }
+          }
+        }
+      `,
+      variables: { email, password },
+    }).pipe(
+      tap( result => { this.saveToken(result.data?.login?.token); } )
     );
   }
 

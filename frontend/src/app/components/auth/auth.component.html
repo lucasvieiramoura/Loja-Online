@@ -1,0 +1,38 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+           <button [class.active]="isLoginMode" (click)="isLoginMode = true" >Login</button>
+           <button [class.active]="!isLoginMode" (click)="isLoginMode = false" >Cadastro</button>
+        </div>
+        <h2>{{ isLoginMode ? 'Acessar Loja' : 'Criar Nova Conta' }}</h2>
+
+        <form (ngSubmit)="onSubmit()" #authForm="ngForm">
+            @if (isLoginMode) {
+                <div class="form-group">
+                    <label for="name">Nome Completo</label>
+                    <input type="text" id="name" name="name" [(ngModel)]="name" placeholder="Digite seu nome" required>
+                </div>
+            }
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="seuemail@exemplo.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" [(ngModel)]="password" placeholder="*********" required>
+            </div>
+
+            @if (errorMessage) {
+                <div class="error-box">{{ errorMessage }}</div>
+            }
+
+            <button type="submit" class="btn-submit" [disabled]="loading">
+                {{ loading ? 'Processando...' : (isLoginMode ? 'Entrar' : 'Registrar Conta') }}
+            </button>
+        </form>
+
+        <p class="toggle-text">
+            {{ isLoginMode ? 'Ainda não tem uma conta?' : 'Já possui uma conta?' }}
+            <span (click)="toggleMode()">{{ isLoginMode ? 'Cadastre-se aqui' : 'Faça login aqui' }}</span>
+    </div>
+</div>
