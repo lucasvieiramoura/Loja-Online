@@ -1,17 +1,18 @@
-import { Component, inject, OnInit, PLATFORM_ID,ChangeDetectorRef } from '@angular/core';
-import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ProductService } from './services/product.service';
-import { nextTick } from 'process';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+export class AppComponent {
+  title = 'Loja Online';
+}
 
+/*
 export class AppComponent implements OnInit {
   products: any[] = [];
   newProduct = { name: '', description: '', price: 0, category: '', stock: 0, imageUrl: '' };
@@ -62,3 +63,4 @@ loadProducts() {
   } 
 }
 
+*/

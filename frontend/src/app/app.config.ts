@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, inject } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app-routing.module';
@@ -12,7 +12,7 @@ import { setContext } from '@apollo/client/link/context';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideBrowserGlobalErrorListeners(),
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     //provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
