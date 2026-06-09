@@ -1,5 +1,6 @@
 const { gql } = require('apollo-server-express');
 const Product = require('../models/Product');
+const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -23,7 +24,7 @@ const typeDefs = gql`
         id: ID!
         name: String!
         email: String!
-        role: String! ## ex: "admin", "customer"
+        role: String!
         createdAt: String
     }
 
@@ -43,7 +44,7 @@ const typeDefs = gql`
         updateProduct(id: ID!, name: String, description: String, price: Float, stock: Int, category: String, imageUrl: String): Product
         deleteProduct(id: ID!): String!
 
-        register(name: String!, email: String!, password: String!): AuthPayload!
+        register(name: String!, email: String!, password: String!, createdAt: String): AuthPayload!
         login(email: String!, password: String!): AuthPayload!
     }
 `;
@@ -66,13 +67,11 @@ const resolvers = {
             await Product.findByIdAndDelete(id);
             return "Produto deletado com sucesso!";
             //return true;
-        }
-    }
-};
-
-const authResolvers ={
-    Mutation: {
-        register: async (_, { name, email, password }, {models}) => {
+        },       
+        
+        //Resolver de Users
+        register: async (_, { name, email, password },{models}) => {
+        try{
             // 1. Verificar se o e-mail já exisite no banco
             const existingUser = await models.User.findOne({ email });
             if(existingUser) {
@@ -92,12 +91,121 @@ const authResolvers ={
                 }
 
             );
+            // 💡 SEGURANÇA 1: Garanta que temos um ID válido em formato String
+            const userIdStr = newUser._id ? newUser._id.toString() : newUser.id;
 
             // 4. Gerar token JWT
-            const token = jwt.sign({ userId: newUser.id, role: newUser.role }, JWT_SECRET, { expiresIn: '24h' });
-            return { token, user: newUser };
-        },
+            const token = jwt.sign({ userId: userIdStr, role: newUser.role }, JWT_SECRET, { expiresIn: '24h' });
 
+            const resposta = 
+             { token, 
+                user: {
+                    id: userIdStr, 
+                    name: newUser.name,
+                    email: newUser.email,
+                    role: newUser.role
+                }
+            };
+            
+
+            return resposta;
+            
+            } catch (error) {
+                // 🚨 ISSO AQUI VAI REVELAR O COIOTE:
+                console.error("❌ ERRO INTERNO ENCONTRADO DENTRO DO CATCH:");
+                console.error(error); 
+                
+                // Relança o erro para o GraphQL não tentar adivinhar a resposta
+                throw new Error(`Falha no registro: ${error.message}`);
+            }
+        },
+          login: async (_, { email, password }, { models }) => {
+            // 1. Busca o usuário
+            const user = await models.User.findOne({ email });
+            if(!user) {
+                throw new Error('E-mail ou senha inválidos!');
+            }
+
+            //2. Validar senha criptografada
+            const isValid = await bcrypt.compare(password, user.password);
+            if(!isValid) {
+                throw new Error('E-mail ou senha inválidos!');
+            }
+
+            //3. Gerar token JWT
+            const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
+            return { token, user };
+        }
+
+    }
+};
+/*
+const authResolvers ={
+    Mutation: {
+        
+        register: async (_, { name, email, password },{models}) => {
+        try{
+            // 1. Verificar se o e-mail já exisite no banco
+            const existingUser = await models.User.findOne({ email });
+            if(existingUser) {
+                throw new Error('E-mail já cadastrado!');
+            }
+
+            // 2. Criptografar a senha antes de salvar
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            // 3. Salvar no banco de dados 
+            const newUser = await models.User.create(
+                { 
+                    name, 
+                    email, 
+                    password: hashedPassword, 
+                    role: 'customer' // Padrão para novos usuários cadastrados
+                }
+
+            );
+            // 💡 SEGURANÇA 1: Garanta que temos um ID válido em formato String
+            const userIdStr = newUser._id ? newUser._id.toString() : newUser.id;
+
+            // 4. Gerar token JWT
+            const token = jwt.sign({ userId: userIdStr, role: newUser.role }, JWT_SECRET, { expiresIn: '24h' });
+
+            const testeResposta = {
+            token: "token_de_teste_123",
+            user: {
+                id: "65a1234567890123456789ab", // Uma string de ID válida fictícia
+                name: name,
+                email: email,
+                role: "customer"
+            }
+            };
+
+            console.log("--> ENVIANDO DADOS DE TESTE:", testeResposta);
+            return testeResposta;
+           
+            const resposta = 
+             { token, 
+                user: {
+                    id: userIdStr, 
+                    name: newUser.name,
+                    email: newUser.email,
+                    role: newUser.role
+                }
+            };
+            // Esse log vai nos mostrar no terminal exatamente o que o GraphQL vai receber
+            console.log("➡️ Enviando para o GraphQL:", JSON.stringify(respostaFinal, null, 2));
+
+            return resposta;
+            ////
+            } catch (error) {
+                // 🚨 ISSO AQUI VAI REVELAR O COIOTE:
+                console.error("❌ ERRO INTERNO ENCONTRADO DENTRO DO CATCH:");
+                console.error(error); 
+                
+                // Relança o erro para o GraphQL não tentar adivinhar a resposta
+                throw new Error(`Falha no registro: ${error.message}`);
+            }
+        },
         login: async (_, { email, password }, { models }) => {
             // 1. Busca o usuário
             const user = await models.User.findOne({ email });
@@ -117,7 +225,6 @@ const authResolvers ={
         }
     }
 };
-
-
+*/
 
 module.exports = { typeDefs, resolvers };

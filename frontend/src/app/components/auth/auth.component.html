@@ -7,7 +7,7 @@
         <h2>{{ isLoginMode ? 'Acessar Loja' : 'Criar Nova Conta' }}</h2>
 
         <form (ngSubmit)="onSubmit()" #authForm="ngForm">
-            @if (isLoginMode === falseS) {
+            @if (isLoginMode === false) {
                 <div class="form-group">
                     <label for="name">Nome Completo</label>
                     <input type="text" id="name" name="name" [(ngModel)]="name" placeholder="Digite seu nome" required>
