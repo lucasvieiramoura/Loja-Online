@@ -7,7 +7,9 @@ const { typeDefs, resolvers } = require('./graphql/schema');
 // 💡 IMPORTAÇÃO INDIVIDUAL DOS SEUS MODELOS:
 const User = require('./models/User');
 const Product = require('./models/Product');
-const models = { User, Product };
+const Order = require('./models/Order');
+
+const models = { User, Product, Order };
 
 async function startServer() {
     const app = express();
