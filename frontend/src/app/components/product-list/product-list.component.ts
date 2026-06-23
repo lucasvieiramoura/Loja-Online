@@ -1,5 +1,5 @@
 import {Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { ProductService } from '../../services/product.service';
+import { ProductService, Product } from '../../services/product.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 

@@ -34,7 +34,7 @@ const typeDefs = gql`
     }
 
         type Query {
-        getProducts: [Product]
+        getProducts: [Product!]
         getProduct(id: ID!): Product
         me: User!
     }
@@ -52,13 +52,31 @@ const typeDefs = gql`
 // 2. Implementação dos Resolvers
 const resolvers = {
     Query: {
-        getProducts: async () => await Product.find(),
+        getProducts: async (_, __,{models}) => {
+            try{;
+            return await Product.find()
+            } catch(error){
+                throw new Error(`Erro ao buscar produtos: ${error.message}`);
+            }
+            
+        },
         getProduct: async (_, { id }) => await Product.findById(id),
     },
     Mutation: {
-        createProduct: async (_, { id, ...updateData }) => {
-            const product = new Product(updateData);
-            return await product.save();
+        createProduct: async (_, { id, ...updateData },{models}) => {
+            try {
+                const newProduct = await models.Product.create({
+                    name,
+                    description,
+                    price,
+                    imageUrl,
+                    category,
+                    stock
+                });
+                return newProduct;
+            }catch(error){
+                throw new Error(`Erro ao criar produto: ${error.message}`);
+            }
         },
         updateProduct: async (_, { id, ...updateData }) => {
             return await Product.findByIdAndUpdate(id, updateData, { new: true });

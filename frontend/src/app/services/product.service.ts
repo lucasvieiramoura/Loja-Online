@@ -3,6 +3,17 @@ import { Apollo, gql } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+//Definição da interface do Produto no Frontend
+export interface Product {
+  id?: string;
+  name: string;
+  description?: string;
+  price: number;
+  category: string;
+  imageUrl:string;
+  stock: number;
+}
+
 // 1. QUERY: Busca produtos (Sem vírgulas entre os campos!)
 const GET_PRODUCTS = gql`
   query GetProducts {
@@ -24,6 +35,7 @@ const CREATE_PRODUCT = gql`
     createProduct(name: $name, description: $description, price: $price, stock: $stock, imageUrl: $imageUrl, category: $category) {
       id
       name
+      price
     }
   }
 `;
