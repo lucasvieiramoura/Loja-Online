@@ -2,6 +2,7 @@ import {Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ProductService, Product } from '../../services/product.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { CartService } from '../../services/cart.service';
 
 @Component({
     selector: 'app-product-list',
@@ -17,6 +18,7 @@ export class ProductListComponent implements OnInit {
 
     constructor(
         private productService: ProductService,
+        private cartService: CartService,
         private cdr: ChangeDetectorRef
     ) {}
 
@@ -51,5 +53,10 @@ export class ProductListComponent implements OnInit {
             }  
         });
 
+    }
+
+    buyProduct( product: Product): void{
+        this.cartService.addToCart(product);
+        alert(`${product.name} foi adicionado ao carrinho!`);
     }
 }
