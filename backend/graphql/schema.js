@@ -39,6 +39,33 @@ const typeDefs = gql`
         me: User!
     }
 
+    type OrderItem {
+        productId: ID!
+        quantity: Int!
+        priceAtPurchase: Float!
+    }
+
+    type Order {
+        id: ID!
+        userId: ID!
+        items: [OrderItem!]!
+        total: Float!
+        status: String!
+        createdAt: String!
+    }
+
+    # Input usado para enviar a estrutura do carrinho de forma limpa
+    input OrderItemInput {
+        productId: ID!
+        quantity: Int!
+        priceAtPurchase: Float!
+    }
+
+    extend type Mutation {
+        #Mutation que recebe o array de itens e calcula o checkout
+        createOrder(items: [OrderItemInput!]!, total: FLoat!): Ordre!
+    }
+
     type Mutation {
         createProduct(name: String!, description: String, price: Float!, stock: Int!, category: String, imageUrl: String): Product
         updateProduct(id: ID!, name: String, description: String, price: Float, stock: Int, category: String, imageUrl: String): Product
@@ -153,6 +180,42 @@ const resolvers = {
             //3. Gerar token JWT
             const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
             return { token, user };
+        },
+
+        createOrder: async (_, {items, total}, {models, req}) =>{
+            // 💡 SEGURANÇA: Se você implementou o middleware de Auth ou passa o usuário via req.user:
+            // const userId = req.user.id; 
+            // Para fins de teste/desenvolvimento local, caso não tenha o middleware de contexto de Token ativo na requisição do Apollo:
+            const userId = "65a1234567890123456789ab"; // Substitua pelo ID real do usuário dinâmico vindo do contexto do token se já configurado
+
+            try{
+                //1. Validar e atualizar o estoque físico de cada produto no MongoDB
+                for( const item of items) {
+                    const product = await models.Product.findById(item.productId);
+                    if(!product) {
+                        throw new Error(`Produto com ID ${item.productId} não foi localizado`);
+                    }
+                    if (product.stock < item.quantity) {
+                        throw new Error(`Estoque insuficente para o produto: ${product.name}. Disponível: ${product.stock}`);
+                    }
+
+                    // Abata o estoque do produto decrementando a quantidade comprada
+                    product.stock -= item.quantity;
+                    await product.save();
+                }
+
+                //2. Grava a Ordem de Compra definitiva no banco
+                const newOrder = await models.Order.create({
+                    userId,
+                    items,
+                    total,
+                    status: 'PENDING'
+                });
+
+                return newOrder;
+            } catch (error) {
+                throw new Error(`Falha ao processar checkout: ${error.message}`);
+            }
         }
 
     }
