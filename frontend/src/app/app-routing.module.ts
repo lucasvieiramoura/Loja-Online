@@ -2,10 +2,13 @@ import { Routes } from '@angular/router';
 import { AuthComponent } from './components/auth/auth.component';
 import { authGuard } from './guards/auth.guard';
 import { ProductListComponent } from './components/product-list/product-list.component';
+import { CartPagComponent } from './components/cart-page/cart-page.component';
 
 export const routes: Routes = [
     // Rota pública qualquer um acessa a tela de Login/Cadastro
     { path: 'login', component: AuthComponent },
+    
+    {path: 'cart', component: CartPagComponent},
 
     // Rota protegida: o catálogo/CRUD de produtos só abre se passar pelo authGuard
     {
@@ -18,6 +21,7 @@ export const routes: Routes = [
     {path: '', redirectTo: '/login', pathMatch: 'full'},
 
     // Rota coringa caso digite qualquer coisa errada
-    {path: '**', redirectTo: '/login'},
+    {path: '**', redirectTo: '/login'}
+
 ];
 

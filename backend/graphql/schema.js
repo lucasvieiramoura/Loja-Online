@@ -63,7 +63,7 @@ const typeDefs = gql`
 
     extend type Mutation {
         #Mutation que recebe o array de itens e calcula o checkout
-        createOrder(items: [OrderItemInput!]!, total: FLoat!): Ordre!
+        createOrder(items: [OrderItemInput!]!, total: Float!): Order!
     }
 
     type Mutation {

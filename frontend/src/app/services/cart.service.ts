@@ -20,7 +20,7 @@ export class CartService {
   constructor() {
     const savedCart = localStorage.getItem('cart');
     if (savedCart){
-      this.cartItems == JSON.parse(savedCart);
+      this.cartItems = JSON.parse(savedCart);
       this.cartSubject.next(this.cartItems);
     }
   }
@@ -29,7 +29,7 @@ export class CartService {
     return this.cartItems;
   }
 
-  addToCart(product: Product): void {
+  addToCart(product: Product): any {
     const existingItem = this.cartItems.find(item => item.product.id === product.id)
 
     if (existingItem){
