@@ -32,10 +32,6 @@ export class CartPagComponent implements OnInit {
   ){}
 
   ngOnInit(): void {
-    // TESTE 1: O componente consegue ler direto do localStorage?
-    const localData = localStorage.getItem('cart');
-    console.log('👉 Conteúdo direto do localStorage no Carrinho:', localData);
-    
     //Escuta em tempo real as mudanças e mutações do carrinho de compras
     this.cartService.cart$.subscribe(items => {
       this.cartItems = items;
@@ -59,6 +55,11 @@ export class CartPagComponent implements OnInit {
     if(item.product.id){
       this.cartService.removeFromCart(item.product.id);
     }
+  }
+
+  addMaisProdutos(): void {
+       this.router.navigate(['/products']);
+      return;
   }
 
   checkout(): void {
