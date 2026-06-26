@@ -1,0 +1,21 @@
+.link-carrinho {
+    display: inline-flex;
+    align-items: center; /* Alinha texto e ícone verticalmente ao centro */
+    gap: 8px; /* Espaço entre o texto e o ícone */
+    
+    /* Cores e fontes */
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 16px;
+    transition: color 0.3s ease;
+    display: flex;
+    justify-content: flex-end; /* Empurra o conteúdo para a direita */
+    width: 80%;
+    padding: 15px 20px;
+}
+
+/* Efeito ao passar o mouse */
+.link-carrinho:hover {
+    color: #007bff;
+}

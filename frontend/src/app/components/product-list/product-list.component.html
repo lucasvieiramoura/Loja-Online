@@ -1,5 +1,5 @@
 
-
+<!--
     <div style="padding: 20px; font-family: sans-serif;">
       <h1>Painel da Loja Online (CRUD MEAN + GraphQL)</h1>
 
@@ -38,3 +38,68 @@
             </div>
           </div>
     </div>
+  -->
+
+  <div class="dashboard-container">
+  <h1 class="main-title">Painel da Loja Online <span class="tech-badge">MEAN + GraphQL</span></h1>
+
+  <div class="form-card">
+    <h3>Adicionar Novo Produto</h3>
+    
+    <div class="form-group">
+      <label>Nome:</label>
+      <input [(ngModel)]="newProduct.name" type="text" placeholder="Ex: Headset Gamer Redragon" />
+    </div>
+
+    <div class="form-group">
+      <label>Descrição:</label>
+      <input [(ngModel)]="newProduct.description" type="text" placeholder="Breve descrição do produto" />
+    </div>
+
+    <div class="row-inputs">
+      <div class="form-group">
+        <label>Preço (R$):</label>
+        <input [(ngModel)]="newProduct.price" type="number" placeholder="0.00" />
+      </div>
+
+      <div class="form-group">
+        <label>Estoque:</label>
+        <input [(ngModel)]="newProduct.stock" type="number" placeholder="Disponibilidade" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>URL da Imagem:</label>
+      <input [(ngModel)]="newProduct.imageUrl" type="text" placeholder="https://..." />
+    </div>
+
+    <button class="btn-save" (click)="addProduct()">Salvar Produto</button>
+  </div>
+
+  <hr class="divider">
+
+  <h3 class="section-title">Catálogo de Produtos</h3>
+  
+  <div class="product-grid">
+    <div *ngFor="let product of products" class="product-card">
+      <div class="card-image-wrapper">
+        <img [src]="product.imageUrl || 'https://via.placeholder.com/150'" alt="Imagem do produto">
+      </div>
+      
+      <div class="card-content">
+        <h4>{{ product.name }}</h4>
+        <p class="description">{{ product.description }}</p>
+        
+        <div class="card-meta">
+          <p class="price"><strong>Preço:</strong> R$ {{ product.price }}</p>
+          <p class="stock"><strong>Estoque:</strong> {{ product.stock }} unid.</p>
+        </div>
+        
+        <div class="card-actions">
+          <button class="btn-cart" (click)="buyProduct(product)">Adicionar ao Carrinho</button>
+          <button class="btn-delete" (click)="deleteProduct(product)" title="Excluir produto">Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
